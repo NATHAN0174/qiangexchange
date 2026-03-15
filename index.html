@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qing Exchange | Professional Calculator</title>
+    <style>
+        :root {
+            --primary: #f39c12;
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #ffffff;
+            --input: #2c2c2c;
+        }
+
+        .light-mode {
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --text: #121212;
+            --input: #f0f0f0;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; margin: 0; transition: 0.3s; }
+        
+        .card { background: var(--card); padding: 25px; border-radius: 20px; width: 100%; max-width: 380px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); border: 1px solid #333; text-align: center; position: relative; }
+        
+        /* THEME TOGGLE */
+        .theme-btn { position: absolute; top: 15px; right: 15px; background: var(--primary); border: none; border-radius: 50%; width: 35px; height: 35px; cursor: pointer; font-size: 18px; }
+
+        .logo-badge { width: 70px; height: 70px; background: linear-gradient(145deg, #f39c12, #d35400); border-radius: 50%; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 35px; font-weight: bold; color: #121212; border: 3px solid #fff; }
+
+        h2 { color: var(--primary); margin: 0; letter-spacing: 1px; }
+        .subtitle { color: #888; font-size: 13px; margin-bottom: 20px; }
+        
+        .bonus-tag { background: rgba(39, 174, 96, 0.1); color: #2ecc71; padding: 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 20px; border: 1px dashed #2ecc71; }
+        
+        label { display: block; font-size: 14px; color: var(--text); margin-bottom: 8px; text-align: left; opacity: 0.8; }
+        
+        select, input { width: 100%; padding: 14px; background: var(--input); border: 1px solid #444; color: var(--text); border-radius: 12px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; outline: none; }
+        
+        .result-box { background: rgba(0,0,0,0.1); padding: 20px; border-radius: 15px; border: 1px solid var(--primary); margin-top: 10px; }
+        .amount { font-size: 32px; color: var(--primary); font-weight: 800; display: block; }
+        
+        .btn { display: block; background: var(--primary); color: #000; text-align: center; padding: 18px; border-radius: 12px; text-decoration: none; font-weight: bold; margin-top: 20px; transition: 0.3s; }
+        .btn:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body id="body">
+
+<div class="card">
+    <button class="theme-btn" onclick="toggleTheme()">🌓</button>
+    
+    <div class="logo-badge">Q</div>
+    <h2>QING EXCHANGE</h2>
+    <p class="subtitle">Secure • Fast • Reliable</p>
+
+    <div class="bonus-tag">🎁 +₦1,000 Bonus automatically added!</div>
+
+    <label>Select Gift Card</label>
+    <select id="cardType" onchange="calculate()">
+        <option value="apple">Apple / iTunes</option>
+        <option value="razer">Razer Gold</option>
+        <option value="steam">Steam</option>
+        <option value="sephora">Sephora</option>
+        <option value="macys">Macys</option>
+        <option value="walmart">Walmart (518/402)</option>
+        <option value="footlocker">Footlocker</option>
+        <option value="nordstrom">Nordstrom</option>
+        <option value="amex">Amex (3779)</option>
+        <option value="ebay">Ebay</option>
+        <option value="xbox">Xbox</option>
+        <option value="visa">Visa/Master (4034/5113)</option>
+        <option value="cashapp">Cashapp / Paypal</option>
+        <option value="btc">BTC (Per $)</option>
+        <option value="zelle">Zelle / Greendot</option>
+    </select>
+
+    <label>Amount ($)</label>
+    <input type="number" id="usdAmount" placeholder="Enter amount" oninput="calculate()">
+
+    <div class="result-box">
+        <span style="opacity: 0.7; font-size: 14px;">Total Payout:</span>
+        <span class="amount">₦<span id="nairaResult">0</span></span>
+    </div>
+
+    <a href="#" id="whatsappBtn" class="btn" onclick="sendTrade()">PROCEED TO TRADE</a>
+</div>
+
+<script>
+    // CONFIGURATION
+    const VENDOR_NAME = "Qing";
+    const BASE_WHATSAPP_URL = "https://wa.me/2348100000000"; // Replace with real number or wa.link
+    const BONUS = 1000;
+
+    const rates = {
+        apple: 1185, razer: 1165, steam: 1030, sephora: 1100, 
+        macys: 1150, walmart: 1390, footlocker: 1080, nordstrom: 1010,
+        amex: 1055, ebay: 900, xbox: 980, visa: 840, 
+        cashapp: 1100, btc: 1300, zelle: 1050
+    };
+
+    function calculate() {
+        const card = document.getElementById('cardType').value;
+        const usd = document.getElementById('usdAmount').value;
+        const rate = rates[card];
+        const result = document.getElementById('nairaResult');
+
+        if (usd > 0) {
+            let total = (rate * usd) + BONUS;
+            result.innerText = total.toLocaleString();
+        } else {
+            result.innerText = "0";
+        }
+    }
+
+    function sendTrade() {
+        const card = document.getElementById('cardType').options[document.getElementById('cardType').selectedIndex].text;
+        const usd = document.getElementById('usdAmount').value;
+        const total = document.getElementById('nairaResult').innerText;
+
+        if (!usd || usd <= 0) {
+            alert("Please enter an amount first!");
+            return;
+        }
+
+        // AUTO-MESSAGE LOGIC
+        const message = `Hello ${VENDOR_NAME}, I want to trade:\n\n` +
+                        `💳 Card: ${card}\n` +
+                        `💵 Amount: $${usd}\n` +
+                        `💰 Expected Payout: ₦${total}\n\n` +
+                        `Are you active?`;
+        
+        const encodedMessage = encodeURIComponent(message);
+        window.open(`https://wa.link/mmv30u?text=${encodedMessage}`, '_blank');
+    }
+
+    function toggleTheme() {
+        document.getElementById('body').classList.toggle('light-mode');
+    }
+</script>
+
+</body>
+</html>
